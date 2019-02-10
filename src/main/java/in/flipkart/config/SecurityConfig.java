@@ -36,7 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 		CustomDaoAuthenticationProvider authProvider = new CustomDaoAuthenticationProvider(userService);
-		authProvider.setPasswordEncoder(passwordEncoder());
+		authProvider.setPasswordEncoder(new BCryptPasswordEncoder());
 		authProvider.setUserDetailsService(flipkartUserDetailsService);
 		authProvider.setHideUserNotFoundExceptions(false);
 		auth.authenticationProvider(authProvider);
@@ -60,7 +60,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.csrf().disable();
 		http.exceptionHandling();
 		http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/");
-		http.formLogin().loginPage("/signin").defaultSuccessUrl("/flipkart", true).authenticationDetailsSource(authenticationDetailsSource);
+		http.formLogin().loginPage("/signin").defaultSuccessUrl("/", true).authenticationDetailsSource(authenticationDetailsSource);
 	}
 
 	@Bean

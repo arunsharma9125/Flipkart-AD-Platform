@@ -1,5 +1,6 @@
 package in.flipkart.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -34,6 +35,14 @@ public class AdvertisementDao {
 		criteria.add(Restrictions.eq("gender", gender));
 		criteria.add(Restrictions.le("startAge", age));
 		criteria.add(Restrictions.ge("endAge", age));
-		return criteria.list();
+		List<Advertisement> advertisements = criteria.list();
+		List<Advertisement> validAdvertisements = new ArrayList<Advertisement>();
+		for(int i=0; i < advertisements.size(); i++){
+			Advertisement advertisement = advertisements.get(i);
+			if(advertisement.getBudget() >= advertisement.getBid()){
+				validAdvertisements.add(advertisement);
+			}
+		}
+		return validAdvertisements;
 	}
 }

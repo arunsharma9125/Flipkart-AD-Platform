@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +22,6 @@ public class HomeController {
 	@Autowired
 	private UserService userService;
 	
-	
-
 	@RequestMapping(value="/signup", method=RequestMethod.GET)
 	public String signup(ModelMap model){
 		model.addAttribute("genderList",Gender.values() );
@@ -43,19 +42,9 @@ public class HomeController {
 			@RequestParam("gender") Gender gender,
 			@RequestParam("age") Integer age){
 
-		User user = new User(email, confirmationPassword, name, age, gender);
+		String encodedPassword = new BCryptPasswordEncoder().encode(password); 
+		User user = new User(email, encodedPassword, name, age, gender);
 		userService.saveOrUpdate(user);
-		Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		return "redirect:/";
-	}
-	
-	@RequestMapping(value="/signin", method=RequestMethod.POST)
-	public String signin(
-			@RequestParam("email") String email,
-			@RequestParam("password") String password){
-
-		User user = userService.getByEmail(email);
 		Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		return "redirect:/";
@@ -63,10 +52,14 @@ public class HomeController {
 
 	@RequestMapping(value={"/", "", "/index"}, method=RequestMethod.GET)
 	public String index(ModelMap model){
-		String message = "abc";
 		User loggedInUser = SessionUtil.getLoggedInUser();
-		model.addAttribute("loggedInUser", loggedInUser);
-		model.addAttribute("message", message);
+		if(loggedInUser != null){
+			String message = userService.getMessage(loggedInUser);
+			if(message != null){
+				model.addAttribute("message", message);
+			}
+			model.addAttribute("loggedInUser", loggedInUser);
+		}
 		return "index";
 	}
 }

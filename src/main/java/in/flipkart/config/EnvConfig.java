@@ -15,9 +15,11 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
+import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
@@ -102,5 +104,18 @@ public class EnvConfig {
 	@Bean
 	public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
 		return new PersistenceExceptionTranslationPostProcessor();
+	}
+	
+	@Bean
+	public JedisConnectionFactory connectionFactory(){
+		JedisConnectionFactory factory = new JedisConnectionFactory();
+		factory.setHostName(env.getRequiredProperty("flipkart.redis.host"));
+		factory.setPort(Integer.parseInt(env.getRequiredProperty("flipkart.redis.port")));
+		return factory;
+	}
+	
+	@Bean
+	public static ConfigureRedisAction configureRedisAction(){
+		return ConfigureRedisAction.NO_OP;
 	}
 }
