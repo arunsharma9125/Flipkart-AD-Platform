@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +21,9 @@ public class HomeController {
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	
 	@RequestMapping(value="/signup", method=RequestMethod.GET)
 	public String signup(ModelMap model){
@@ -42,7 +45,7 @@ public class HomeController {
 			@RequestParam("gender") Gender gender,
 			@RequestParam("age") Integer age){
 
-		String encodedPassword = new BCryptPasswordEncoder().encode(password); 
+		String encodedPassword =passwordEncoder.encode(password);
 		User user = new User(email, encodedPassword, name, age, gender);
 		userService.saveOrUpdate(user);
 		Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
